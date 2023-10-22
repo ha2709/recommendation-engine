@@ -1,0 +1,10 @@
+user_id,name,age,gender,location,preferences,product_id,category,Product_name,description,tags
+1,Alice,30,Female,New York,Electronics,101,Electronics,Smartphone Galaxy S22,"The latest Galaxy smartphone with 5G support, AMOLED display, and advanced camera features.","Smartphone, Samsung, 5G, AMOLED, Camera"
+1,Alice,30,Female,New York,Electronics,103,Sports,Running Shoes UltraBoost,High-performance running shoes with responsive cushioning and adaptive knit upper.,"Running Shoes, Adidas, Athletic, Cushioning"
+2,Bob,25,Male,Los Angeles,Clothing,102,Electronics,Laptop ProBook X360,"A versatile laptop with a 360-degree hinge, powerful performance, and long-lasting battery.","Laptop, HP, 2-in-1, Performance"
+2,Bob,25,Male,Los Angeles,Clothing,104,Books,"Book: ""The Great Gatsby""",A classic novel by F. Scott Fitzgerald exploring the decadence of the 1920s.,"Book, Literature, Classic, 1920s"
+3,Charlie,35,Male,San Francisco,Sports,103,Sports,Running Shoes UltraBoost,High-performance running shoes with responsive cushioning and adaptive knit upper.,"Running Shoes, Adidas, Athletic, Cushioning"
+3,Charlie,35,Male,San Francisco,Sports,104,Books,"Book: ""The Great Gatsby""",A classic novel by F. Scott Fitzgerald exploring the decadence of the 1920s.,"Book, Literature, Classic, 1920s"
+4,David,28,Male,Chicago,Books,101,Electronics,Smartphone Galaxy S22,"The latest Galaxy smartphone with 5G support, AMOLED display, and advanced camera features.","Smartphone, Samsung, 5G, AMOLED, Camera"
+4,David,28,Male,Chicago,Books,102,Electronics,Laptop ProBook X360,"A versatile laptop with a 360-degree hinge, powerful performance, and long-lasting battery.","Laptop, HP, 2-in-1, Performance"
+5,Eve,22,Female,Miami,Food,105,Electronics,Bluetooth Speaker SoundWave,"Portable Bluetooth speaker with 360-degree sound, built-in microphone, and waterproof design.","Speaker, Bluetooth, Waterproof, Portable"
