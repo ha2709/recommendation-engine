@@ -30,7 +30,7 @@ Sample request
 
 ```
 curl -X 'GET' \
-  'http://localhost:8000/api/v1/product' \
+  'http://localhost:8001/api/v1/product' \
   -H 'accept: application/json' \
   -H 'access_token: supersecretkey'
 ```
