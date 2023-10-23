@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 from typing import List
+from dotenv import load_dotenv
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
@@ -13,13 +14,12 @@ from models.product import Product
 from models.transactions import Transaction
 from models.user import User
 from services.services import get_session
+
 # Load environment variables from .env
 load_dotenv()
 router_v1 = APIRouter()
 API_KEY = os.getenv("API_KEY")
 API_KEY_NAME = os.getenv("API_KEY_NAME")
-
-
 API_KEY_HEADER = APIKeyHeader(name=API_KEY_NAME)
 # Authenticator function for API key validation
 async def get_api_key(api_key: str = Depends(API_KEY_HEADER)):
@@ -34,8 +34,7 @@ def root():
 @router_v1.get("/users", response_model=List[UserSchema])
 def get_all_users(api_key: str = Depends(get_api_key),
                   session: Session = Depends(get_session)):  
-    users = session.query(User).all()
- 
+    users = session.query(User).all() 
     return users
 
 # Create a User
@@ -89,7 +88,6 @@ def delete_user(user_id: int,
 def get_all_transactions( api_key: str = Depends(get_api_key),
                           session: Session = Depends(get_session)): 
     transactions = session.query(Transaction).all()
-
     return transactions
     
 # Create a Transaction
@@ -112,7 +110,7 @@ def read_transaction(transaction_id: int,
                    filter(Transaction.transaction_id == transaction_id).first())
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
-#     return transaction
+    return transaction
 
 # Update a Transaction
 @router_v1.put("/transaction/{transaction_id}",
@@ -203,4 +201,4 @@ def delete_product(id: int,
 
 
 
-# ... (include the remaining route-related content here)
+ 
