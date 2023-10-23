@@ -13,7 +13,7 @@ services:
     tty: true
     volumes:
       - ./mysql/db:/docker-entrypoint-initdb.d/
-    #   - ./mysql/conf.d:/etc/mysql/conf.d
+ 
   
   user-product:
     container_name: user-product

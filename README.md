@@ -6,7 +6,7 @@ To ensure the scalability and fault tolerance of the Recommendation Engine, the 
 
 1. **Microservices Architecture:** The Recommendation Engine has been divided into two separate microservices, the User-Product Service and the Recommendation Service, communicating via HTTP. This modular approach allows for independent scaling and development.
 
-2. **Fallback Mechanism:** In the event of a failure in the User-Product Service, the Recommendation Service automatically retrieves data from the dataset.csv file to train the model and deliver results, ensuring continuous operation of the system.
+2. **Fallback Mechanism:** In the event of a failure in the User-Product Service, the Recommendation Service automatically retrieves stale data from the dataset.csv file to train the model and deliver results, ensuring continuous operation of the system.
 
 3. **Horizontal Scaling with Load Balancer:** The system can scale horizontally by adding more nodes or resources, facilitated by a load balancer that evenly distributes incoming traffic among multiple instances of the Recommendation Service.
 
