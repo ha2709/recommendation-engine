@@ -1,26 +1,27 @@
 import os
 from dotenv import load_dotenv
-import requests
+
 import pandas as pd
 from fastapi import HTTPException, Depends
 from surprise import Dataset, Reader, SVD
 from surprise.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from pydantic import BaseModel, Field
+from schema.user import UserSchema
+from schema.product import ProductSchema
+from schema.transactions import TransactionSchema
+from bleach import clean
+import logging
 import functools
 from cachetools import cached, TTLCache
-import asyncio
 import aiohttp
-import logging
-from pydantic import BaseModel, Field
-from .schema.user import UserSchema
-from .schema.product import ProductSchema
-from .schema.transactions import TransactionSchema
-from bleach import clean
+import asyncio
 
+logging.basicConfig(filename="recommendation.log", level=logging.ERROR)
 # Load environment variables from the .env file
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
-
+# Define headers with access token
 
 # Define the cache size and time-to-live (TTL) for the cache
 cache = TTLCache(
@@ -28,24 +29,7 @@ cache = TTLCache(
 )  # Adjust the values according to your requirements
 
 
-# Validate user input
-def validate_user_data(user_data: dict):
-    validated_data = UserSchema(**user_data)
-    return validated_data
-
-
-# Validate product input
-def validate_product_data(product_data: dict):
-    validated_data = ProductSchema(**user_data)
-    return validated_data
-
-
-# Validate transaction input
-def validate_transaction_data(transaction_data: dict):
-    validated_data = TransactionSchema(**user_data)
-    return validated_data
-
-
+# Apply the cache decorator to the get_recommendations method
 class RecommendationService:
     def __init__(self):
         self.BASE_URL = os.getenv("BASE_URL")
@@ -62,6 +46,10 @@ class RecommendationService:
         }
         self.headers = {"access_token": API_KEY, "Content-Type": "application/json"}
 
+    async def fetch_data(self, session, url):
+        async with session.get(url) as response:
+            return await response.json()
+
     async def get_api_key(self, api_key):
         if api_key != self.API_KEY:
             raise HTTPException(
@@ -77,31 +65,23 @@ class RecommendationService:
         reader = Reader(rating_scale=(1, 5))
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.USER_URL, headers=self.headers) as response:
-                    # Fetch user data
-                    user_data = await response.json()
-                async with session.get(
-                    self.PRODUCT_URL, headers=self.headers
-                ) as response:
-                    # Fetch product data
-                    product_data = await response.json()
-                async with session.get(
-                    self.TRANSACTION_URL, headers=self.headers
-                ) as response:
-                    transaction_data = await response.json()
+                # Fetch user data
+                user_data_task = asyncio.create_task(
+                    self.fetch_data(session, self.USER_URL)
+                )
+                # Fetch product data
+                product_data_task = asyncio.create_task(
+                    self.fetch_data(session, self.PRODUCT_URL)
+                )
+                # Fetch transaction history
+                transaction_data_task = asyncio.create_task(
+                    self.fetch_data(session, self.TRANSACTION_URL)
+                )
 
-            # Validate user data
-            validated_user_data = [validate_user_data(data) for data in user_data]
+                user_data, product_data, transaction_data = await asyncio.gather(
+                    user_data_task, product_data_task, transaction_data_task
+                )
 
-            # Validate product data
-            validated_product_data = [
-                validate_product_data(data) for data in product_data
-            ]
-
-            # Validate transactions data
-            validated_transaction_data = [
-                validate_transaction_data(data) for data in transaction_data
-            ]
             # Extract preferences from user data
             preferences = [user["preferences"] for user in user_data]
 
@@ -136,17 +116,15 @@ class RecommendationService:
             )
         except aiohttp.ClientError as client_error:
             logging.error(f"Aiohttp client error: {client_error}")
-            raise HTTPException(status_code=500, detail="Internal server error")
+            #     raise HTTPException(status_code=500, detail="Internal server error")
 
-        except Exception as e:
-            logging.error(f"An error occurred: {e}")
-            raise HTTPException(status_code=500, detail="Internal server error")
+            # except Exception as e:
+            #     logging.error(f"An error occurred: {e}")
 
-            print(f"Failed to load data from API. Loading data from CSV. Error: {e}")
+            print(
+                f"Failed to load data from API. Loading data from CSV. Error: {client_error}"
+            )
             final_data = pd.read_csv("dataset.csv")
-            # Validate the data
-            if final_data.isnull().values.any():
-                raise ValueError("Null values found in the dataset")
             final_data["preferences"] = final_data["preferences"].map(
                 self.preference_mapping
             )
