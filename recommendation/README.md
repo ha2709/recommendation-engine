@@ -26,9 +26,9 @@ You can use the following curl command to make an API request:
 
 ```
 curl -X 'GET' \
-'http://localhost:8000/api/v1/recommend/103' \
--H 'accept: application/json' \
--H 'access_token: supersecretkey'
+  'http://localhost:8000/api/v1/recommend/1' \
+  -H 'accept: application/json' \
+  -H 'access_token: supersecretkey'
 
 ```
 

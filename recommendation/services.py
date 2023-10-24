@@ -22,7 +22,7 @@ logging.basicConfig(filename="recommendation.log", level=logging.ERROR)
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 # Define headers with access token
-
+API_KEY_NAME = os.getenv("API_KEY_NAME")
 # Define the cache size and time-to-live (TTL) for the cache
 cache = TTLCache(
     maxsize=100, ttl=300
@@ -47,7 +47,8 @@ class RecommendationService:
         self.headers = {"access_token": API_KEY, "Content-Type": "application/json"}
 
     async def fetch_data(self, session, url):
-        async with session.get(url) as response:
+        headers = {API_KEY_NAME: API_KEY} 
+        async with session.get(url, headers=headers) as response:
             return await response.json()
 
     async def get_api_key(self, api_key):
@@ -81,6 +82,14 @@ class RecommendationService:
                 user_data, product_data, transaction_data = await asyncio.gather(
                     user_data_task, product_data_task, transaction_data_task
                 )
+            
+                # Validation of user_id input
+                user_ids = [user.get('user_id') for user in user_data]
+                print(88, user_ids,user_id,user_id not in user_ids)
+                if user_id not in user_ids:
+                    message = f"User ID {user_id} not found in user data."
+                    logging.error(message)
+                    raise HTTPException(status_code=400, detail=message)         
 
             # Extract preferences from user data
             preferences = [user["preferences"] for user in user_data]
@@ -116,15 +125,18 @@ class RecommendationService:
             )
         except aiohttp.ClientError as client_error:
             logging.error(f"Aiohttp client error: {client_error}")
-            #     raise HTTPException(status_code=500, detail="Internal server error")
-
-            # except Exception as e:
-            #     logging.error(f"An error occurred: {e}")
+ 
 
             print(
                 f"Failed to load data from API. Loading data from CSV. Error: {client_error}"
             )
             final_data = pd.read_csv("dataset.csv")
+            unique_user_ids = final_data['user_id'].unique().tolist()
+            if user_id not in unique_user_ids:
+                message = f"User ID {user_id} not found in user data."
+                logging.error(message)
+                raise HTTPException(status_code=400, detail=message)    
+
             final_data["preferences"] = final_data["preferences"].map(
                 self.preference_mapping
             )
